@@ -23,6 +23,7 @@ This page documents the full public API exposed in Airflow 3.0+ via the Task SDK
 If something is not on this page it is best to assume that it is not part of the public API and use of it is entirely at your own risk
 -- we won't go out of our way break usage of them, but we make no promises either.
 
+.. :py:module: airflow.sdk
 
 Defining DAGs
 -------------
@@ -73,3 +74,4 @@ Everything else
   :exclude-members: BaseOperator, DAG, dag, asset, Asset, AssetAlias, AssetAll, AssetAny, AssetWatcher, TaskGroup, XComArg, get_current_context, get_parsing_context
   :undoc-members:
   :imported-members:
+  :no-index:
