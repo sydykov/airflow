@@ -49,7 +49,6 @@ else:
             )
             return properties
 
-
 __all__ = [
     "inject_parent_job_information_into_spark_properties",
     "inject_transport_information_into_spark_properties",
