@@ -154,6 +154,9 @@ spec:
             - name: logs
               mountPath: {{ template "airflow_logs" . }}
         {{- end }}
+        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
+          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
+        {{- end }}
         {{- if and (semverCompare ">=2.8.0" .Values.airflowVersion) .Values.workers.kerberosInitContainer.enabled }}
         - name: kerberos-init
           image: {{ template "airflow_image" . }}
@@ -201,6 +204,9 @@ spec:
           securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
           volumeMounts:
             {{- include "airflow_config_mount" . | nindent 12 }}
+            {{- if and $localOrDagProcessorDisabled (or .Values.dags.persistence.enabled .Values.dags.gitSync.enabled) }}
+              {{- include "airflow_dags_mount" . | nindent 12 }}
+            {{- end }}
             {{- if .Values.volumeMounts }}
               {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- end }}
@@ -218,9 +224,6 @@ spec:
             {{- if .Values.workers.waitForMigrations.env }}
               {{- tpl (toYaml .Values.workers.waitForMigrations.env) $ | nindent 12 }}
             {{- end }}
-        {{- end }}
-        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
-          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
         {{- end }}
         {{- if .Values.workers.extraInitContainers }}
           {{- tpl (toYaml .Values.workers.extraInitContainers) . | nindent 8 }}

@@ -117,6 +117,9 @@ spec:
         - name: {{ template "registry_secret" . }}
       {{- end }}
       initContainers:
+        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
+          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
+        {{- end }}
         {{- if .Values.dagProcessor.waitForMigrations.enabled }}
         - name: wait-for-airflow-migrations
           resources: {{- toYaml .Values.dagProcessor.resources | nindent 12 }}
@@ -124,13 +127,16 @@ spec:
           imagePullPolicy: {{ .Values.images.airflow.pullPolicy }}
           securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
           volumeMounts:
+            {{- include "airflow_config_mount" . | nindent 12 }}
+            {{- if and $localOrDagProcessorDisabled (or .Values.dags.persistence.enabled .Values.dags.gitSync.enabled) }}
+              {{- include "airflow_dags_mount" . | nindent 12 }}
+            {{- end }}
             {{- if .Values.volumeMounts }}
               {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- end }}
             {{- if .Values.dagProcessor.extraVolumeMounts }}
               {{- tpl (toYaml .Values.dagProcessor.extraVolumeMounts) . | nindent 12 }}
             {{- end }}
-            {{- include "airflow_config_mount" . | nindent 12 }}
           args: {{- include "wait-for-migrations-command" . | indent 10 }}
           envFrom: {{- include "custom_airflow_environment_from" . | default "\n  []" | indent 10 }}
           env:
@@ -139,9 +145,6 @@ spec:
             {{- if .Values.dagProcessor.waitForMigrations.env }}
               {{- tpl (toYaml .Values.dagProcessor.waitForMigrations.env) $ | nindent 12 }}
             {{- end }}
-        {{- end }}
-        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
-          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
         {{- end }}
         {{- if .Values.dagProcessor.extraInitContainers }}
           {{- tpl (toYaml .Values.dagProcessor.extraInitContainers) . | nindent 8 }}

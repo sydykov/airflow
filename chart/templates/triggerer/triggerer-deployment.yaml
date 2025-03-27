@@ -132,6 +132,9 @@ spec:
         - name: {{ template "registry_secret" . }}
       {{- end }}
       initContainers:
+        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
+          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
+        {{- end }}
         {{- if .Values.triggerer.waitForMigrations.enabled }}
         - name: wait-for-airflow-migrations
           resources:
@@ -141,6 +144,9 @@ spec:
           securityContext: {{ $containerSecurityContextWaitForMigrations | nindent 12 }}
           volumeMounts:
             {{- include "airflow_config_mount" . | nindent 12 }}
+            {{- if and $localOrDagProcessorDisabled (or .Values.dags.persistence.enabled .Values.dags.gitSync.enabled) }}
+              {{- include "airflow_dags_mount" . | nindent 12 }}
+            {{- end }}
             {{- if .Values.volumeMounts }}
               {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- end }}
@@ -158,9 +164,6 @@ spec:
             {{- if .Values.triggerer.waitForMigrations.env }}
               {{- tpl (toYaml .Values.triggerer.waitForMigrations.env) $ | nindent 12 }}
             {{- end }}
-        {{- end }}
-        {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
-          {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
         {{- end }}
         {{- if .Values.triggerer.extraInitContainers }}
           {{- tpl (toYaml .Values.triggerer.extraInitContainers) . | nindent 8 }}
