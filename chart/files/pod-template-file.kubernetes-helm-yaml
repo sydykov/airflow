@@ -140,7 +140,7 @@ spec:
           {{- end }}
         {{- include "airflow_config_mount" . | nindent 8 }}
         {{- if or .Values.dags.gitSync.enabled .Values.dags.persistence.enabled }}
-          {{- include "airflow_dags_mount" . | nindent 8 }}
+          {{- include "airflow_dags_mount" (list . "workers") | nindent 8 }}
         {{- end }}
         {{- if .Values.volumeMounts }}
           {{- toYaml .Values.volumeMounts | nindent 8 }}
