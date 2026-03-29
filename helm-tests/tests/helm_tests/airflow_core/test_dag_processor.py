@@ -201,7 +201,7 @@ class TestDagProcessor:
             == "test-volume-airflow"
         )
         assert (
-            jmespath.search("spec.template.spec.initContainers[0].volumeMounts[0].name", docs[0])
+            jmespath.search("spec.template.spec.initContainers[0].volumeMounts[3].name", docs[0])
             == "test-volume-airflow"
         )
 
