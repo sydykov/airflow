@@ -111,7 +111,7 @@ spec:
         {{- if ne .Values.workers.name "default" }}
         worker-set: {{ .Values.workers.name }}
         {{- end }}
-        {{- if or (.Values.labels) (.Values.workers.labels) }}
+        {{- if or .Values.labels .Values.workers.labels }}
           {{- mustMerge .Values.workers.labels .Values.labels | toYaml | nindent 8 }}
         {{- end }}
       annotations:
