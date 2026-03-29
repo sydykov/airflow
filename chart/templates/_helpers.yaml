@@ -381,8 +381,8 @@ If release name contains chart name it will be used as a full name.
   args: {{- include "wait-for-migrations-command" $ | indent 2 }}
   envFrom: {{- include "custom_airflow_environment_from" $ | default "\n  []" | indent 2 }}
   env:
-    {{- include "custom_airflow_environment" $ | indent 4 }}
-    {{- include "standard_airflow_environment" (merge (dict "IncludeJwtSecret" false) $) | indent 4 }}
+    {{- include "custom_airflow_environment" $ | indent 2 }}
+    {{- include "standard_airflow_environment" (merge (dict "IncludeJwtSecret" false) $) | indent 2 }}
     {{- if $componentValues.waitForMigrations.env }}
       {{- tpl (toYaml $componentValues.waitForMigrations.env) $ | nindent 4 }}
     {{- end }}
