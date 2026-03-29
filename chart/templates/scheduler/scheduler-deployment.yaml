@@ -146,7 +146,7 @@ spec:
       hostAliases: {{- toYaml .Values.scheduler.hostAliases | nindent 8 }}
       {{- end }}
       initContainers:
-        {{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.components.scheduler }}
+        {{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.components.scheduler (not (and .Values.dags.persistence.enabled $dagProcessorEnabled)) }}
           {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
         {{- end }}
         {{- include "wait_for_airflow_migrations_container" (list . "scheduler") | nindent 8 }}
@@ -229,7 +229,7 @@ spec:
               mountPath: {{ .Values.scheduler.serviceAccount.serviceAccountTokenVolume.mountPath }}
               readOnly: true
             {{- end }}
-        {{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.components.scheduler }}
+        {{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.components.scheduler (not (and .Values.dags.persistence.enabled $dagProcessorEnabled))}}
           {{- include "git_sync_container" . | nindent 8 }}
         {{- end }}
         {{- if .Values.scheduler.logGroomerSidecar.enabled }}
