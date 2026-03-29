@@ -87,7 +87,6 @@ spec:
       topologySpreadConstraints: {{- toYaml $topologySpreadConstraints | nindent 8 }}
       serviceAccountName: {{ include "migrateDatabaseJob.serviceAccountName" . }}
       imagePullSecrets: {{- include "image_pull_secrets" . | nindent 8 }}
-      {{- if .Values.migrateDatabaseJob.extraInitContainers }}
       initContainers:
         {{- if and .Values.dags.gitSync.enabled .Values.dags.gitSync.components.migrateDatabaseJob (not .Values.dags.persistence.enabled) }}
           {{- include "git_sync_container" (dict "Values" .Values "is_init" "true" "Template" .Template) | nindent 8 }}
@@ -146,5 +145,4 @@ spec:
         {{- if .Values.migrateDatabaseJob.extraVolumes }}
           {{- tpl (toYaml .Values.migrateDatabaseJob.extraVolumes) . | nindent 8 }}
         {{- end }}
-      {{- end }}
 {{- end }}
